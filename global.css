@@ -1,0 +1,23 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.lajota {
+	@apply flex-1 bg-white justify-center items-center p-4;
+}
+
+.botao {
+	@apply bg-primary p-4 rounded-lg shadow-md;
+}
+
+.texto-botao {
+	@apply text-white text-lg text-center font-semibold;
+}
+
+.texto-titulo {
+	@apply text-3xl font-bold text-center text-gray-800 mb-8;
+}
+
+.texto-cabecalho {
+	@apply text-sm;
+}
