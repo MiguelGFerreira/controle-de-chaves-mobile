@@ -23,6 +23,10 @@ export default function Index() {
         <Link href='/segundaVia' className="botao">
           <Text className="texto-botao">Segunda Via de Chaves</Text>
         </Link>
+
+        <Link href='/signature' className="botao">
+          <Text className="texto-botao">Assinatura</Text>
+        </Link>
       </View>
     </SafeAreaView>
   );

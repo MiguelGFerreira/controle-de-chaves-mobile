@@ -1,7 +1,7 @@
-import { getChavesByArmario } from '@/api';
-import { Chave } from '@/types';
-import React, { useState } from 'react';
-import { Text, SafeAreaView, StyleSheet } from 'react-native';
+import { getChavesByArmario, getFuncionarios, getFuncionariosComPermissao, getPorteiros } from '@/api';
+import { Chave, Funcionario, Porteiro } from '@/types';
+import React, { useEffect, useState } from 'react';
+import { Text, SafeAreaView, StyleSheet, Alert } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
 
 const armariosData = [
@@ -10,32 +10,58 @@ const armariosData = [
   { label: 'Armário 3', value: '03' },
 ];
 
-const chaveData = [
-  { label: 'Armário 1', value: '1' },
-  { label: 'Armário 2', value: '2' },
-  { label: 'Armário 3', value: '3' },
-];
-
 export default function EmprestimoScreen() {
   const [chaves, setChaves] = useState<Chave[]>([])
-  const [armarioSelecionado, setArmarioSelecionado] = useState('');
-  const [isFocusArmario, setIsFocusArmario] = useState(false);
-  const [chaveSelecionada, setChaveSelecionada] = useState('');
-  const [isFocusChave, setIsFocusChave] = useState(false);
+  const [porteiros, setPorteiros] = useState<Porteiro[]>([])
+  const [funcionarios, setFuncionarios] = useState<Funcionario[]>([])
+  const [armarioSelecionado, setArmarioSelecionado] = useState('')
+  const [chaveSelecionada, setChaveSelecionada] = useState<Chave>()
+  const [porteiroSelecionado, setPorteiroSelecionado] = useState('')
+  const [funcionarioSelecionado, setFuncionarioSelecionado] = useState('')
+  const [focusArmario, setFocusArmario] = useState(false)
+  const [focusChave, setFocusChave] = useState(false)
+  const [focusPorteiro, setFocusPorteiro] = useState(false)
+  const [focusFuncionario, setFocusFuncionario] = useState(false)
+
 
   const handleArmarioChange = async (value: string) => {
     const data = await getChavesByArmario(value);
     setChaves(data);
   }
 
+  // const handleChaveChange = async (chave: Chave) => {
+  //   chave.RESTRITO === 'S' ? fetchFuncionarioComPermissao(armarioSelecionado,chave.NUMERO) : fetchFuncionarios()
+  // }
+
+  const fetchPorteiros = async () => {
+    const data = await getPorteiros();
+    setPorteiros(data);
+  }
+
+  const fetchFuncionarios = async () => {
+    const data = await getFuncionarios();
+    setFuncionarios(data);
+  }
+
+  const fetchFuncionarioComPermissao = async (armario: string, numero: string) => {
+    const data = await getFuncionariosComPermissao(armario, numero);
+    setFuncionarios(data);
+  }
+
+  /*useEffect(() => {
+    fetchPorteiros();
+    //fetchFuncionarios();
+  }, [])*/
+
   return (
     <SafeAreaView className="lajota">
       <Text className='texto-cabecalho'>FQ-SPA-PPRSPA001-002 - Versão 04</Text>
       <Text className='texto-cabecalho'>Vigência: 22/02/2024</Text>
       <Text className="texto-titulo">Tela de Empréstimo de Chaves</Text>
+
       <Text>Armário</Text>
       <Dropdown
-        style={[styles.dropdown, isFocusArmario && { borderColor: 'blue' }]}
+        style={[styles.dropdown, focusArmario && { borderColor: 'blue' }]}
         placeholderStyle={styles.placeholderStyle}
         selectedTextStyle={styles.selectedTextStyle}
         inputSearchStyle={styles.inputSearchStyle}
@@ -44,20 +70,20 @@ export default function EmprestimoScreen() {
         maxHeight={300}
         labelField="label"
         valueField="value"
-        placeholder={!isFocusArmario ? 'Selecione um Armário' : '...'}
+        placeholder={!focusArmario ? 'Selecione um Armário' : '...'}
         value={armarioSelecionado}
-        onFocus={() => setIsFocusArmario(true)}
-        onBlur={() => setIsFocusArmario(false)}
+        onFocus={() => setFocusArmario(true)}
+        onBlur={() => setFocusArmario(false)}
         onChange={item => {
           setArmarioSelecionado(item.value);
-          setIsFocusArmario(false);
-          handleArmarioChange(item.value)
+          setFocusArmario(false);
+          handleArmarioChange(item.value);
         }}
       />
 
       <Text>N° Chave</Text>
       <Dropdown
-        style={[styles.dropdown, isFocusChave && { borderColor: 'blue' }]}
+        style={[styles.dropdown, focusChave && { borderColor: 'blue' }]}
         placeholderStyle={styles.placeholderStyle}
         selectedTextStyle={styles.selectedTextStyle}
         inputSearchStyle={styles.inputSearchStyle}
@@ -65,18 +91,64 @@ export default function EmprestimoScreen() {
         data={chaves}
         search
         maxHeight={300}
-        labelField="DESCRIÇÃO"
+        labelField="DESCRIÇÃO" // mudar a api para trazer numero + descricao
         valueField="NUMERO"
-        placeholder={!isFocusChave ? 'Select item' : '...'}
+        placeholder={!focusChave ? 'Select item' : '...'}
         searchPlaceholder="Search..."
         value={chaveSelecionada}
-        onFocus={() => setIsFocusChave(true)}
-        onBlur={() => setIsFocusChave(false)}
+        onFocus={() => setFocusChave(true)}
+        onBlur={() => setFocusChave(false)}
         onChange={item => {
-          setChaveSelecionada(item.NUMERO);
-          setIsFocusChave(false);
+          setChaveSelecionada(item);
+          setFocusChave(false);
+          item.RESTRITO === 'S' ? fetchFuncionarioComPermissao(armarioSelecionado,item.NUMERO) : fetchFuncionarios()
         }}
       />
+
+      <Text>Porteiro</Text>
+      <Dropdown
+        style={[styles.dropdown, focusPorteiro && { borderColor: 'blue' }]}
+        placeholderStyle={styles.placeholderStyle}
+        selectedTextStyle={styles.selectedTextStyle}
+        inputSearchStyle={styles.inputSearchStyle}
+        iconStyle={styles.iconStyle}
+        data={porteiros}
+        maxHeight={300}
+        labelField="PORTEIRO" // mudar a api para trazer numero + descricao
+        valueField="ID"
+        placeholder={!focusPorteiro ? 'Select item' : '...'}
+        value={porteiroSelecionado}
+        onFocus={() => setFocusPorteiro(true)}
+        onBlur={() => setFocusPorteiro(false)}
+        onChange={item => {
+          setPorteiroSelecionado(item.ID);
+          setFocusPorteiro(false);
+        }}
+      />
+
+      <Text>Funcionário</Text>
+      <Dropdown
+        style={[styles.dropdown, focusFuncionario && { borderColor: 'blue' }]}
+        placeholderStyle={styles.placeholderStyle}
+        selectedTextStyle={styles.selectedTextStyle}
+        inputSearchStyle={styles.inputSearchStyle}
+        iconStyle={styles.iconStyle}
+        data={funcionarios}
+        search
+        maxHeight={300}
+        labelField="nome" // mudar a api para trazer numero + descricao
+        valueField="matricula"
+        placeholder={!focusFuncionario ? 'Select item' : '...'}
+        searchPlaceholder="Search..."
+        value={funcionarioSelecionado}
+        onFocus={() => setFocusFuncionario(true)}
+        onBlur={() => setFocusFuncionario(false)}
+        onChange={item => {
+          setFuncionarioSelecionado(item.matricula);
+          setFocusFuncionario(false);
+        }}
+      />
+
     </SafeAreaView>
   );
 };
