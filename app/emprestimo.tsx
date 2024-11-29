@@ -1,8 +1,9 @@
 import { getChavesByArmario, getFuncionarios, getFuncionariosComPermissao, getPorteiros } from '@/api';
 import { Chave, Funcionario, Porteiro } from '@/types';
 import React, { useEffect, useState } from 'react';
-import { Text, SafeAreaView, StyleSheet, Alert } from 'react-native';
+import { Text, SafeAreaView, StyleSheet, Alert, Modal, Pressable } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
+import SignatureCanvas from 'react-native-signature-canvas';
 
 const armariosData = [
   { label: 'Armário 1', value: '01' },
@@ -14,10 +15,20 @@ export default function EmprestimoScreen() {
   const [chaves, setChaves] = useState<Chave[]>([])
   const [porteiros, setPorteiros] = useState<Porteiro[]>([])
   const [funcionarios, setFuncionarios] = useState<Funcionario[]>([])
+
+  {/*Propriedades das assinaturas (visibilidade do modal e valores das assinaturas preenchidas)*/}
+  const [keeperModalVisible, setKeeperModalVisible] = useState(false);
+  const [employeeModalVisible, setEmployeeModalVisible] = useState(false);
+  const [keeperSignature, setKeeperSignature] = useState<string | null>(null);
+  const [employeeSignature, setEmployeeSignature] = useState<string | null>(null);
+
+  {/*Propriedades de valores selecionados dos dropdown*/ }
   const [armarioSelecionado, setArmarioSelecionado] = useState('')
   const [chaveSelecionada, setChaveSelecionada] = useState<Chave>()
   const [porteiroSelecionado, setPorteiroSelecionado] = useState('')
   const [funcionarioSelecionado, setFuncionarioSelecionado] = useState('')
+
+  {/*Propriedades de foco dos dropdown*/ }
   const [focusArmario, setFocusArmario] = useState(false)
   const [focusChave, setFocusChave] = useState(false)
   const [focusPorteiro, setFocusPorteiro] = useState(false)
@@ -29,9 +40,29 @@ export default function EmprestimoScreen() {
     setChaves(data);
   }
 
-  // const handleChaveChange = async (chave: Chave) => {
-  //   chave.RESTRITO === 'S' ? fetchFuncionarioComPermissao(armarioSelecionado,chave.NUMERO) : fetchFuncionarios()
-  // }
+  const handleKeeperSignature = (signature: string) => {
+    setKeeperSignature(signature);
+    setKeeperModalVisible(!keeperModalVisible);
+  };
+
+  // Função para limpar a assinatura
+  const handleKeeperClear = () => {
+    setKeeperSignature(null);
+  };
+
+  const handleEmployeeSignature = (signature: string) => {
+    setEmployeeSignature(signature);
+    setEmployeeModalVisible(!employeeModalVisible);
+  };
+
+  // Função para limpar a assinatura
+  const handleEmployeeClear = () => {
+    setEmployeeSignature(null);
+  };
+
+  const handleConfirm = () => {
+    Alert.alert("Assinaturas", `${keeperSignature?.substring(0,10)}\n${employeeSignature?.substring(0,10)}`)
+  }
 
   const fetchPorteiros = async () => {
     const data = await getPorteiros();
@@ -48,10 +79,10 @@ export default function EmprestimoScreen() {
     setFuncionarios(data);
   }
 
-  /*useEffect(() => {
+  useEffect(() => {
     fetchPorteiros();
     //fetchFuncionarios();
-  }, [])*/
+  }, [])
 
   return (
     <SafeAreaView className="lajota">
@@ -101,7 +132,7 @@ export default function EmprestimoScreen() {
         onChange={item => {
           setChaveSelecionada(item);
           setFocusChave(false);
-          item.RESTRITO === 'S' ? fetchFuncionarioComPermissao(armarioSelecionado,item.NUMERO) : fetchFuncionarios()
+          item.RESTRITO === 'S' ? fetchFuncionarioComPermissao(armarioSelecionado, item.NUMERO) : fetchFuncionarios()
         }}
       />
 
@@ -148,6 +179,60 @@ export default function EmprestimoScreen() {
           setFocusFuncionario(false);
         }}
       />
+
+      <Modal
+        animationType='slide'
+        transparent={true}
+        visible={keeperModalVisible}
+        onRequestClose={() => setKeeperModalVisible(!keeperModalVisible)}
+      >
+        <SignatureCanvas
+          onOK={handleKeeperSignature} // Quando o usuário terminar de assinar
+          onClear={handleKeeperClear} // Quando o usuário limpar a assinatura
+          backgroundColor="white"
+          penColor="black"
+          clearText='Limpar'
+          confirmText='Confirmar'
+          descriptionText='Assina acima'
+          minWidth={2}
+          maxWidth={5}
+        />
+      </Modal>
+      <Pressable
+        className='botao'
+        onPress={() => setKeeperModalVisible(true)}>
+        <Text className='texto-botao'>Show Modal</Text>
+      </Pressable>
+
+      <Modal
+        animationType='slide'
+        transparent={true}
+        visible={employeeModalVisible}
+        onRequestClose={() => setEmployeeModalVisible(!employeeModalVisible)}
+      >
+        <SignatureCanvas
+          onOK={handleEmployeeSignature} // Quando o usuário terminar de assinar
+          onClear={handleEmployeeClear} // Quando o usuário limpar a assinatura
+          backgroundColor="white"
+          penColor="black"
+          clearText='Limpar'
+          confirmText='Confirmar'
+          descriptionText='Assina acima'
+          minWidth={2}
+          maxWidth={5}
+        />
+      </Modal>
+      <Pressable
+        className='botao'
+        onPress={() => setEmployeeModalVisible(true)}>
+        <Text className='texto-botao'>Show Modal</Text>
+      </Pressable>
+
+      <Pressable
+        className='botao'
+        onPress={handleConfirm}>
+        <Text className='texto-botao'>Confirmar</Text>
+      </Pressable>
 
     </SafeAreaView>
   );
