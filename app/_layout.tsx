@@ -9,6 +9,7 @@ export default function RootLayout() {
       <Stack.Screen name='devolucao' options={{ title: 'Devolução' }} />
       <Stack.Screen name='armarios' options={{ title: 'Armários' }} />
       <Stack.Screen name='segundaVia' options={{ title: 'Segunda Via' }} />
+      <Stack.Screen name='devolverSegundaVia' options={{ title: 'Devolver Segunda Via' }} />
     </Stack>
   );
 }

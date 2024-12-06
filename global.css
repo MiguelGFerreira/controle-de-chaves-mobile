@@ -3,11 +3,15 @@
 @tailwind utilities;
 
 .lajota {
-	@apply flex-1 bg-white justify-center items-center p-4;
+	@apply flex-1 bg-white items-center p-4;
 }
 
 .botao {
 	@apply bg-primary p-4 rounded-lg shadow-md;
+}
+
+.botao-assinatura {
+	@apply bg-secondary p-4 rounded-lg shadow-md;
 }
 
 .texto-botao {
@@ -20,4 +24,40 @@
 
 .texto-cabecalho {
 	@apply text-sm;
+}
+
+.cabecalho {
+	@apply flex items-center;
+}
+
+.selects {
+	@apply flex items-center w-full gap-2;
+}
+
+.secao-assinatura {
+	@apply grid gap-6 m-8;
+}
+
+.flatlist-pressable {
+	@apply w-full p-4 m-2 border-solid shadow-md;
+}
+
+.flatlist-container {
+	@apply flex gap-4;
+}
+
+.flatlist-texto {
+	@apply text-xl text-emerald-800;
+}
+
+.secao-termo {
+	@apply m-2 p-4;
+}
+
+.texto-termo {
+	@apply text-xl;
+}
+
+.secao-confirmar {
+	@apply flex self-end;
 }

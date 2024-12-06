@@ -4,7 +4,7 @@ import "../global.css"
 
 export default function Index() {
   return (
-    <SafeAreaView className="lajota">
+    <SafeAreaView className="lajota justify-center">
       <Text className="texto-titulo">Controle de Chaves</Text>
 
       <View className="space-y-4 gap-4">
@@ -24,8 +24,8 @@ export default function Index() {
           <Text className="texto-botao">Segunda Via de Chaves</Text>
         </Link>
 
-        <Link href='/signature' className="botao">
-          <Text className="texto-botao">Assinatura</Text>
+        <Link href='/devolverSegundaVia' className="botao">
+          <Text className="texto-botao">Devolver Segunda Via</Text>
         </Link>
       </View>
     </SafeAreaView>
